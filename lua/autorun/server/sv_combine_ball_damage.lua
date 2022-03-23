@@ -5,10 +5,21 @@ local IsValid = IsValid
 local hookName = class .. "_owner_damage"
 hook.Add("OnEntityCreated", hookName, function( ent )
     if (ent:GetClass() == class) then
+        local owner
         timer_Simple(0, function()
             if IsValid( ent ) then
-                ent.Attacker = ent:GetOwner()
+                owner = ent:GetOwner()
+                if IsValid( owner ) then
+                    ent.Attacker = owner
+                end
+
                 ent:SetOwner()
+            end
+        end)
+
+        timer.Simple(0.05, function()
+            if IsValid( owner ) and IsValid( ent ) then
+                owner:SetVelocity( -ent:GetVelocity() )
             end
         end)
     end
