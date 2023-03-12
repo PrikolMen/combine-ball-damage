@@ -1,28 +1,42 @@
 local timer_Simple = timer.Simple
-local math_floor = math.floor
 local IsValid = IsValid
 
-local class = "prop_combine_ball"
-local hookName = class .. "_owner_damage"
+local addonName = 'Combine Ball Damage'
+local combineBallClass = 'prop_combine_ball'
 
-hook.Add("OnEntityCreated", hookName, function( ent )
-    if (ent:GetClass() == class) then
-        timer_Simple(0, function()
-            if IsValid( ent ) then
-                local att = ent:GetOwner()
-                if IsValid( att ) and att:IsPlayer() then
-                    local owner = ent:GetOwner()
-                    ent:SetOwner()
+hook.Add( 'OnEntityCreated', addonName, function( ent )
+    if ent:GetClass() ~= combineBallClass then return end
 
-                    timer_Simple(0.05, function()
-                        if IsValid( ent ) and IsValid( owner ) then
-                            local vel = -ent:GetVelocity() / 3
-                            vel[3] = math_floor( vel[3] / 2 )
-                            owner:SetVelocity( vel )
-                        end
-                    end)
-                end
-            end
-        end)
+    timer_Simple( 0, function()
+        if not IsValid( ent ) then return end
+
+        local owner = ent:GetOwner()
+        if IsValid( owner ) and owner:IsPlayer() then
+            ent:SetOwner()
+        end
+    end )
+end )
+
+local ballDamage = CreateConVar( 'sv_combine_ball_damage', '10000', FCVAR_ARCHIVE, ' - Sets the damage value for ' .. combineBallClass .. '.', 15, 1000000 )
+local DMG_DISSOLVE = DMG_DISSOLVE
+local bit_band = bit.band
+
+hook.Add( 'EntityTakeDamage', addonName, function( ent, dmg )
+    if not IsValid( ent ) then return end
+    if bit_band( dmg:GetDamageType(), DMG_DISSOLVE ) ~= DMG_DISSOLVE then return end
+
+    local infl = dmg:GetInflictor()
+    if IsValid( infl ) and infl:GetClass() == combineBallClass then
+        local damage = ballDamage:GetInt()
+        dmg:SetDamage( damage )
+
+        if (damage < 1000000) then return end
+        if ent:IsPlayer() then return end
+        if ent:IsNPC() then return end
+
+        if ent:IsSolid() then
+            ent:Fire( 'kill' )
+            return true
+        end
     end
-end)
+end )
