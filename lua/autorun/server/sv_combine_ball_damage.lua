@@ -27,16 +27,6 @@ hook.Add( 'EntityTakeDamage', addonName, function( ent, dmg )
 
     local infl = dmg:GetInflictor()
     if IsValid( infl ) and infl:GetClass() == combineBallClass then
-        local damage = ballDamage:GetInt()
-        dmg:SetDamage( damage )
-
-        if (damage < 1000000) then return end
-        if ent:IsPlayer() then return end
-        if ent:IsNPC() then return end
-
-        if ent:IsSolid() then
-            ent:Fire( 'kill' )
-            return true
-        end
+        dmg:SetDamage( ballDamage:GetInt() )
     end
 end )
