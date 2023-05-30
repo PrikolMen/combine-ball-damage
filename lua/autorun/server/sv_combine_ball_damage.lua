@@ -17,7 +17,7 @@ hook.Add( "OnEntityCreated", addonName, function( entity )
     end )
 end )
 
-local ballDamage = CreateConVar( "sv_combine_ball_damage", "10000", FCVAR_ARCHIVE, "Sets the damage value for '" .. combineBallClass .. "'.", 15, 1000000 )
+local ballDamage = CreateConVar( "mp_combine_ball_damage", "10000", FCVAR_ARCHIVE, "Sets the amount of damage caused by '" .. combineBallClass .. "'.", 15, 1000000 )
 local DMG_DISSOLVE = DMG_DISSOLVE
 local bit_band = bit.band
 
