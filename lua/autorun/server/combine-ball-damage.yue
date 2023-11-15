@@ -1,0 +1,49 @@
+AddonName = "Combine Ball Damage"
+ClassName = "prop_combine_ball"
+
+Flags = bit.bor( FCVAR_ARCHIVE, FCVAR_NOTIFY )
+Damage = CreateConVar( "mp_combine_ball_damage", "10000", Flags, "Sets the amount of damage caused by '#{ClassName}'.", 15, 1000000 )
+PlayerProtection = CreateConVar( "mp_combine_ball_player_protection", "0", Flags, "Protects players against damage from his own '#{ClassName}'.", 0, 1 )
+NPCProtection = CreateConVar( "mp_combine_ball_npc_protection", "0", Flags, "Protects NPCs against damage from his own '#{ClassName}'.", 0, 1 )
+
+DMG_DISSOLVE = DMG_DISSOLVE
+timer_Simple = timer.Simple
+bit_band = bit.band
+
+hook.Add "OnEntityCreated", AddonName, =>
+    if @GetClass! ~= ClassName
+        return
+
+    timer_Simple 0, ->
+        unless @IsValid!
+            return
+
+        owner = @GetOwner!
+        unless owner\IsValid!
+            return
+
+        if PlayerProtection\GetBool! and owner\IsPlayer!
+            return
+
+        if NPCProtection\GetBool! and owner\IsPlayer!
+            return
+
+        @[ AddonName ] = owner
+        @SetOwner!
+
+hook.Add "EntityTakeDamage", AddonName, ( damageInfo ) =>
+    if bit_band( damageInfo\GetDamageType!, DMG_DISSOLVE ) ~= DMG_DISSOLVE
+        return
+
+    entity = damageInfo\GetInflictor!
+    unless entity\IsValid! and entity\GetClass! == ClassName
+        return
+
+    owner = entity[ AddonName ]
+    if owner and owner\IsValid!
+        timer_Simple 0, ->
+            if entity\IsValid!
+                entity\SetOwner!
+        entity\SetOwner( owner )
+        damageInfo\SetAttacker( owner )
+    damageInfo\SetDamage( Damage\GetInt! )
