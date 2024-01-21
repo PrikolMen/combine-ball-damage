@@ -39,7 +39,7 @@ hook.Add "EntityTakeDamage", addonName, ( damageInfo ) =>
             if entity\IsValid!
                 entity\SetOwner!
 
-    if band( damageInfo\GetDamageType!, DMG_DISSOLVE ) ~= DMG_DISSOLVE
+    if band( damageInfo\GetDamageType!, DMG_DISSOLVE ) == 0
         damageInfo\SetDamageType( bor( damageInfo\GetDamageType!, DMG_DISSOLVE ) )
 
     damageInfo\SetDamage( Damage\GetInt! )
