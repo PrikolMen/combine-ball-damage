@@ -5,10 +5,10 @@ DMG_DISSOLVE = DMG_DISSOLVE
 :band, :bor = bit
 :Simple = timer
 
-CVAR_FLAGS = bor( FCVAR_ARCHIVE, FCVAR_NOTIFY )
-Damage = CreateConVar( "mp_combine_ball_damage", "10000", CVAR_FLAGS, "Sets the amount of damage caused by '#{className}'.", 15, 1000000 )
-PlayerProtection = CreateConVar( "mp_combine_ball_player_protection", "0", CVAR_FLAGS, "Protects players against damage from his own '#{className}'.", 0, 1 )
-NPCProtection = CreateConVar( "mp_combine_ball_npc_protection", "0", CVAR_FLAGS, "Protects NPCs against damage from his own '#{className}'.", 0, 1 )
+FCVAR_FLAGS = bor( FCVAR_ARCHIVE, FCVAR_NOTIFY )
+mp_combine_ball_damage = CreateConVar( "mp_combine_ball_damage", "10000", FCVAR_FLAGS, "Sets the amount of damage caused by '#{className}'.", 15, 1000000 )
+mp_combine_ball_player_protection = CreateConVar( "mp_combine_ball_player_protection", "0", FCVAR_FLAGS, "Protects players against damage from his own '#{className}'.", 0, 1 )
+mp_combine_ball_npc_protection = CreateConVar( "mp_combine_ball_npc_protection", "0", FCVAR_FLAGS, "Protects NPCs against damage from his own '#{className}'.", 0, 1 )
 
 hook.Add "OnEntityCreated", addonName, =>
     if @GetClass! ~= className
@@ -18,8 +18,10 @@ hook.Add "OnEntityCreated", addonName, =>
         unless @IsValid!
             return
 
+        @AddEffects( EF_BRIGHTLIGHT )
+
         owner = @GetOwner!
-        if not owner\IsValid! or ( PlayerProtection\GetBool! and owner\IsPlayer! ) or ( NPCProtection\GetBool! and owner\IsNPC! )
+        if not owner\IsValid! or ( mp_combine_ball_player_protection\GetBool! and owner\IsPlayer! ) or ( mp_combine_ball_npc_protection\GetBool! and owner\IsNPC! )
             return
 
         @[ addonName ] = owner
@@ -42,4 +44,4 @@ hook.Add "EntityTakeDamage", addonName, ( damageInfo ) =>
     if band( damageInfo\GetDamageType!, DMG_DISSOLVE ) == 0
         damageInfo\SetDamageType( bor( damageInfo\GetDamageType!, DMG_DISSOLVE ) )
 
-    damageInfo\SetDamage( Damage\GetInt! )
+    damageInfo\SetDamage( mp_combine_ball_damage\GetInt! )
