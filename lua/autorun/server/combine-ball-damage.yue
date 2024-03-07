@@ -18,8 +18,6 @@ hook.Add "OnEntityCreated", addonName, =>
         unless @IsValid!
             return
 
-        @AddEffects( EF_BRIGHTLIGHT )
-
         owner = @GetOwner!
         if not owner\IsValid! or ( mp_combine_ball_player_protection\GetBool! and owner\IsPlayer! ) or ( mp_combine_ball_npc_protection\GetBool! and owner\IsNPC! )
             return
